@@ -3,7 +3,7 @@
 Plugin Name: PUNS - Plugin Update Notification System
 Plugin URI: https://github.com/joshp23/YOURLS-PUNS
 Description: Provides notification updates for YOURLS plugins under certain conditions
-Version: 0.1.0
+Version: 0.2.0
 Author: Josh Panter
 Author URI: https://unfettered.net
 */
@@ -236,8 +236,8 @@ function puns_cycle(){
 			}
 
 			switch ($result['code']) {
-				case 0:  $msg = "Up to date"; break;
-				case -1: $msg = "<strong>Update available</strong>"; break;
+				case 0:  $msg = "<span style=\"color:green\">Up to date<span style=\"color:green\">"; break;
+				case -1: $msg = "<span style=\"color:red\"><strong>Update available</strong><span style=\"color:red\">"; break;
 				case 1:  $msg = "You have an advanced version of this plugin?"; break;
 				case 2:  $msg = "This repo has not utilized proper releases."; break;
 				case 3:  $msg = "Not hosted on GitHub."; break;
