@@ -3,7 +3,7 @@
 Plugin Name: PUNS - Plugin Update Notification System
 Plugin URI: https://github.com/joshp23/YOURLS-PUNS
 Description: Provides notification updates for YOURLS plugins under certain conditions
-Version: 0.2.2
+Version: 0.2.3
 Author: Josh Panter
 Author URI: https://unfettered.net
 */
@@ -23,19 +23,19 @@ function puns_add_pages() {
 // Maybe add some files to head
 yourls_add_action( 'html_head', 'puns_head' );
 function puns_head() {
+	$home = YOURLS_SITE;
 	if ( YOURLS_JP23_HEAD_FILES == null ) {
 		define( 'YOURLS_JP23_HEAD_FILES', true );
-
 		echo "\n<! --------------------------JP23_HEAD_FILES Start-------------------------- >\n";
-		echo "<link rel=\"stylesheet\" href=\"".yourls_site_url()."/css/infos.css?v=".YOURLS_VERSION."\" type=\"text/css\" media=\"screen\" />\n";
-		echo "<script src=\"".yourls_site_url()."/js/infos.js?v=".YOURLS_VERSION."\" type=\"text/javascript\"></script>\n";
+		echo "<link rel=\"stylesheet\" href=\"".$home()."/css/infos.css?v=".YOURLS_VERSION."\" type=\"text/css\" media=\"screen\" />\n";
+		echo "<script src=\"".$home()."/js/infos.js?v=".YOURLS_VERSION."\" type=\"text/javascript\"></script>\n";
 		echo "<! --------------------------JP23_HEAD_FILES END---------------------------- >\n";
 	}
 	$file = dirname( __FILE__ )."/plugin.php";
 	$data = yourls_get_plugin_data( $file );
 	$v = $data['Version'];
-	echo "\n<link rel=\"stylesheet\" href=\"".yourls_site_url()."/css/tablesorter.css?v=".$v."\" type=\"text/css\" media=\"screen\" />\n";
-	echo "<script src=\"".yourls_site_url()."/js/jquery.tablesorter.min.js?v=".$v."\" type=\"text/javascript\"></script>\n";
+	echo "\n<link rel=\"stylesheet\" href=\"".$home."/css/tablesorter.css?v=".$v."\" type=\"text/css\" media=\"screen\" />\n";
+	echo "<script src=\"".$home."/js/jquery.tablesorter.min.js?v=".$v."\" type=\"text/javascript\"></script>\n";
 }
 // Draw the page, etc
 function puns_do_page() {
@@ -51,7 +51,7 @@ function puns_do_page() {
 
 	// Misc for cron example pre-formatting
 	$sig	= yourls_auth_signature();
-	$site   = yourls_site_url();
+	$site   = YOURLS_SITE;
 	$cronEG   =  rawurlencode('<html><body><pre>0 * * * * wget -O - -q -t 1 <strong>'.$site.'</strong>/yourls-api.php?signature=<strong>'.$sig.'</strong>&format=simple&action=puns-fast >/dev/null 2>&1</pre></body></html>');
 
 	// Create nonce
@@ -240,9 +240,9 @@ function puns_cycle(){
 			}
 
 			switch ($result['code']) {
-				case 0:  $msg = "<span style=\"color:green\">Up to date<span style=\"color:green\">"; break;
-				case -1: $msg = "<span style=\"color:red\"><strong>Update available</strong><span style=\"color:red\">"; break;
-				case 1:  $msg = "You have an advanced version of this plugin?"; break;
+				case 0:  $msg = "<span style=\"color:green\">Up to date</span>"; break;
+				case -1: $msg = "<span style=\"color:red\"><strong>Update available</strong></span>"; break;
+				case 1:  $msg = "<span style=\"color:blue\">You have an advanced version of this plugin</span>"; break;
 				case 2:  $msg = "This repo has not utilized proper releases."; break;
 				case 3:  $msg = "Not hosted on GitHub."; break;
 			}
