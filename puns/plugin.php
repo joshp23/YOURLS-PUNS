@@ -3,7 +3,7 @@
 Plugin Name: PUNS - Plugin Update Notification System
 Plugin URI: https://github.com/joshp23/YOURLS-PUNS
 Description: Provides notification updates for YOURLS plugins under certain conditions
-Version: 0.2.1
+Version: 0.2.2
 Author: Josh Panter
 Author URI: https://unfettered.net
 */
@@ -25,18 +25,17 @@ yourls_add_action( 'html_head', 'puns_head' );
 function puns_head() {
 	if ( YOURLS_JP23_HEAD_FILES == null ) {
 		define( 'YOURLS_JP23_HEAD_FILES', true );
-		<script src="<?php yourls_site_url(); ?>/js/yada.js?v=<?php echo YOURLS_VERSION; ?>" type="text/javascript"></script>
-		?>
-		<! --------------------------JP23_HEAD_FILES Start-------------------------- >
-		<link rel="stylesheet" href="<?php yourls_site_url(); ?>/css/infos.css?v=<?php echo YOURLS_VERSION; ?>" type="text/css" media="screen" />
-		<script src="<?php yourls_site_url(); ?>/js/infos.js?v=<?php echo YOURLS_VERSION; ?>" type="text/javascript"></script>
-		<! --------------------------JP23_HEAD_FILES END---------------------------- >
-		<?php
+
+		echo "\n<! --------------------------JP23_HEAD_FILES Start-------------------------- >\n";
+		echo "<link rel=\"stylesheet\" href=\"".yourls_site_url()."/css/infos.css?v=".YOURLS_VERSION."\" type=\"text/css\" media=\"screen\" />\n";
+		echo "<script src=\"".yourls_site_url()."/js/infos.js?v=".YOURLS_VERSION."\" type=\"text/javascript\"></script>\n";
+		echo "<! --------------------------JP23_HEAD_FILES END---------------------------- >\n";
 	}
-	?>
-	<link rel="stylesheet" href="<?php yourls_site_url(); ?>/css/tablesorter.css??v=<?php echo YOURLS_VERSION; ?>" type="text/css" media="screen" />
-	<script src="<?php yourls_site_url(); ?>/js/jquery.tablesorter.min.js??v=<?php echo YOURLS_VERSION; ?>" type="text/javascript"></script>
-	<?php
+	$file = dirname( __FILE__ )."/plugin.php";
+	$data = yourls_get_plugin_data( $file );
+	$v = $data['Version'];
+	echo "\n<link rel=\"stylesheet\" href=\"".yourls_site_url()."/css/tablesorter.css?v=".$v."\" type=\"text/css\" media=\"screen\" />\n";
+	echo "<script src=\"".yourls_site_url()."/js/jquery.tablesorter.min.js?v=".$v."\" type=\"text/javascript\"></script>\n";
 }
 // Draw the page, etc
 function puns_do_page() {
@@ -52,7 +51,7 @@ function puns_do_page() {
 
 	// Misc for cron example pre-formatting
 	$sig	= yourls_auth_signature();
-	$site   = YOURLS_SITE;
+	$site   = yourls_site_url();
 	$cronEG   =  rawurlencode('<html><body><pre>0 * * * * wget -O - -q -t 1 <strong>'.$site.'</strong>/yourls-api.php?signature=<strong>'.$sig.'</strong>&format=simple&action=puns-fast >/dev/null 2>&1</pre></body></html>');
 
 	// Create nonce
