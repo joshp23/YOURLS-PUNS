@@ -3,7 +3,7 @@
 Plugin Name: PUNS - Plugin Update Notification System
 Plugin URI: https://github.com/joshp23/YOURLS-PUNS
 Description: Provides notification updates for YOURLS plugins under certain conditions
-Version: 0.2.0
+Version: 0.2.1
 Author: Josh Panter
 Author URI: https://unfettered.net
 */
@@ -25,13 +25,18 @@ yourls_add_action( 'html_head', 'puns_head' );
 function puns_head() {
 	if ( YOURLS_JP23_HEAD_FILES == null ) {
 		define( 'YOURLS_JP23_HEAD_FILES', true );
-		echo "\n<! --------------------------JP23_HEAD_FILES Start-------------------------- >\n";
-		echo "<link rel=\"stylesheet\" href=\"/css/infos.css\" type=\"text/css\" media=\"screen\" />\n";
-		echo "<script src=\"/js/infos.js\" type=\"text/javascript\"></script>\n";
-		echo "<! --------------------------JP23_HEAD_FILES END---------------------------- >\n";
+		<script src="<?php yourls_site_url(); ?>/js/yada.js?v=<?php echo YOURLS_VERSION; ?>" type="text/javascript"></script>
+		?>
+		<! --------------------------JP23_HEAD_FILES Start-------------------------- >
+		<link rel="stylesheet" href="<?php yourls_site_url(); ?>/css/infos.css?v=<?php echo YOURLS_VERSION; ?>" type="text/css" media="screen" />
+		<script src="<?php yourls_site_url(); ?>/js/infos.js?v=<?php echo YOURLS_VERSION; ?>" type="text/javascript"></script>
+		<! --------------------------JP23_HEAD_FILES END---------------------------- >
+		<?php
 	}
-	echo "\n<link rel=\"stylesheet\" href=\"/css/tablesorter.css?v=1.7.3\" type=\"text/css\" media=\"screen\" />\n";
-	echo "<script src=\"/js/jquery.tablesorter.min.js?v=1.7.3\" type=\"text/javascript\"></script>\n";
+	?>
+	<link rel="stylesheet" href="<?php yourls_site_url(); ?>/css/tablesorter.css??v=<?php echo YOURLS_VERSION; ?>" type="text/css" media="screen" />
+	<script src="<?php yourls_site_url(); ?>/js/jquery.tablesorter.min.js??v=<?php echo YOURLS_VERSION; ?>" type="text/javascript"></script>
+	<?php
 }
 // Draw the page, etc
 function puns_do_page() {
