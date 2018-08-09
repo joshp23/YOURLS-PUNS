@@ -3,7 +3,7 @@
 Plugin Name: PUNS - Plugin Update Notification System
 Plugin URI: https://github.com/joshp23/YOURLS-PUNS
 Description: Provides notification updates for YOURLS plugins under certain conditions
-Version: 0.2.3
+Version: 0.3.0
 Author: Josh Panter
 Author URI: https://unfettered.net
 */
@@ -225,7 +225,7 @@ function puns_cycle(){
 			unset( $plugin[$value] );
 		}
 
-		$result = puns_check($data['name'], $data['uri'],$data['version']);
+		$result = puns_check($data['uri'],$data['version']);
 
 		if ( yourls_is_api() ) {
 
@@ -242,9 +242,11 @@ function puns_cycle(){
 			switch ($result['code']) {
 				case 0:  $msg = "<span style=\"color:green\">Up to date</span>"; break;
 				case -1: $msg = "<span style=\"color:red\"><strong>Update available</strong></span>"; break;
-				case 1:  $msg = "<span style=\"color:blue\">You have an advanced version of this plugin</span>"; break;
-				case 2:  $msg = "This repo has not utilized proper releases."; break;
-				case 3:  $msg = "Not hosted on GitHub."; break;
+				case 1:  $msg = "<span style=\"color:blue\">Ahead of latest</span>"; break;
+				case 2:  $msg = "This repo has not utilized proper release tags."; break;
+				case 3:  $msg = $result['err']; break;
+				case 403:$msg = "Forbidden!"; break;
+				case 404:$msg = "Repo not found!"; break;
 			}
 
 			printf( "<tr class='plugin %s'><td class='plugin_name'><a target='_blank' href='%s'>%s</a></td><td class='plugin_version'>%s</td><td class='plugin_desc'>%s</td><td class='plugin_version'>%s</td></tr>",
@@ -254,38 +256,15 @@ function puns_cycle(){
 	} return $i;
 }
 // check individual plugin updates
-function puns_check($name,$url,$version) {
+function puns_check($url,$version) {
 	if (function_exists('curl_init')) {
 		$parse = parse_url($url);
-		if ($parse['host'] == "github.com") {
-			$opt = puns_config();
-
-			$creds = explode('/', $parse['path']);
-			$owner = $creds[1];
-			$repo = $creds[2];
-
-			if ($opt[0] == true) {
-				$endpoint = 'https://'.$opt[1].':'.$opt[2].'@api.github.com/repos/'.$owner.'/'.$repo.'/releases/latest';
-			} else {
-				$endpoint = 'https://api.github.com/repos/'.$owner.'/'.$repo.'/releases/latest';
-			}
-
-			$cURL = curl_init();
-				curl_setopt($cURL, CURLOPT_URL,$endpoint);
-				curl_setopt($cURL, CURLOPT_HTTPHEADER, array('Accept: application/vnd.github.v3+json'));
-				curl_setopt($cURL,CURLOPT_USERAGENT,'YOURLS-PUNS-v0.0.1');
-				curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
-				curl_setopt($cURL, CURLOPT_TIMEOUT, 30);
-			$result = curl_exec($cURL);
-				curl_close($cURL);
-			$result = json_decode($result,true);
-			if(isset($result["tag_name"])) {
-				$latest = $result["tag_name"];
-				if (substr($latest, 0, 1) === 'v') $latest = substr($latest, 1);
-				$data['code'] = version_compare($version, $latest);
-				$data['latest'] = $latest;
-			} else $data['code'] = 2;
-		} else $data['code'] = 3;
+		if ($parse['host'] == "github.com") $data = puns_github($parse, $version);
+		elseif ($parse['host'] == "bitbucket.org") $data = puns_bitbucket($parse, $version);
+		else {
+			$data['code'] = 3;
+			$data['err'] = 'Unsupported host: <code>'.$parse['host'].'</code>';
+		}
 		return $data;
 	} else print "Please isntall PHP-CURL for this plugin to work";
 }
@@ -295,6 +274,75 @@ function puns_check($name,$url,$version) {
  *
  *
 */
+// github API
+function puns_github($parse, $version){
+	
+	$opt = puns_config();
+
+	$creds = explode('/', $parse['path']);
+	$owner = $creds[1];
+	$repo = $creds[2];
+
+	if ($opt[0] == true) {
+		$endpoint = 'https://'.$opt[1].':'.$opt[2].'@api.github.com/repos/'.$owner.'/'.$repo.'/releases/latest';
+	} else {
+		$endpoint = 'https://api.github.com/repos/'.$owner.'/'.$repo.'/releases/latest';
+	}
+
+	$cURL = curl_init();
+		curl_setopt($cURL, CURLOPT_URL,$endpoint);
+		curl_setopt($cURL, CURLOPT_HTTPHEADER, array('Accept: application/vnd.github.v3+json'));
+		curl_setopt($cURL,CURLOPT_USERAGENT,'YOURLS-PUNS-v0.2.4');
+		curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($cURL, CURLOPT_TIMEOUT, 30);
+	$result = curl_exec($cURL);
+	$status = curl_getinfo($cURL, CURLINFO_HTTP_CODE);
+		curl_close($cURL);
+	$result = json_decode($result,true);
+	if($status = 200) {
+		if(isset($result["tag_name"])) {
+			$latest = $result["tag_name"];
+			if (substr($latest, 0, 1) === 'v') $latest = substr($latest, 1);
+			$data['code'] = version_compare($version, $latest);
+			$data['latest'] = $latest;
+		} else $data['code'] = 2;
+	} else $data['code'] = $status;
+	return $data;
+}
+// bitbucket API
+function puns_bitbucket($parse, $version){
+
+	$creds = explode('/', $parse['path']);
+	$owner = $creds[1];
+	$repo = $creds[2];
+	$endpoint = 'https://api.bitbucket.org/2.0/repositories/'.$owner.'/'.$repo.'/refs/tags';
+
+	$cURL = curl_init();
+		curl_setopt($cURL, CURLOPT_URL,$endpoint);
+		curl_setopt($cURL,CURLOPT_USERAGENT,'YOURLS-PUNS-v0.2.4');
+		curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($cURL, CURLOPT_TIMEOUT, 30);
+	$result = curl_exec($cURL);
+	$status = curl_getinfo($cURL, CURLINFO_HTTP_CODE);
+		curl_close($cURL);
+	$result = json_decode($result,true);
+	if($status = 200) {
+		if($result['values']) {
+			$latest = 0;
+			foreach($result['values'] as $value) {
+				if($value['name'] && $value['name'] !== 'tip') {
+					$test = $value["name"];
+					if (substr($test, 0, 1) === 'v') $test = substr($test, 1);
+					if (version_compare($test, $latest ) >= 0) $latest = $test;
+				}
+			}
+			$data['code'] = version_compare($version, $latest);
+			$data['latest'] = $latest;
+		} else $data['code'] = 2;
+	} else	$data['code'] = $status;
+	return $data;
+}
+// config options array
 function puns_config() {
 	// Get values from DB
 	$ghAuth = yourls_get_option( 'puns_github_auth' );
