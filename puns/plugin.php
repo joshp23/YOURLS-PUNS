@@ -3,7 +3,7 @@
 Plugin Name: PUNS - Plugin Update Notification System
 Plugin URI: https://github.com/joshp23/YOURLS-PUNS
 Description: Provides notification updates for YOURLS plugins under certain conditions
-Version: 0.4.2
+Version: 0.4.3
 Author: Josh Panter
 Author URI: https://unfettered.net
 */
@@ -22,20 +22,17 @@ function puns_add_pages() {
 }
 // Maybe add some files to head
 yourls_add_action( 'html_head', 'puns_head' );
-function puns_head() {
+function puns_head($context) {
 	$home = YOURLS_SITE;
-	if ( YOURLS_JP23_HEAD_FILES == null ) {
-		define( 'YOURLS_JP23_HEAD_FILES', true );
-		echo "\n<! --------------------------JP23_HEAD_FILES Start-------------------------- >\n";
-		echo "<link rel=\"stylesheet\" href=\"".$home()."/css/infos.css?v=".YOURLS_VERSION."\" type=\"text/css\" media=\"screen\" />\n";
-		echo "<script src=\"".$home()."/js/infos.js?v=".YOURLS_VERSION."\" type=\"text/javascript\"></script>\n";
-		echo "<! --------------------------JP23_HEAD_FILES END---------------------------- >\n";
+	if ( $context[0] == 'plugin_page_puns' ) {
+		echo "<link rel=\"stylesheet\" href=\"".$home."/css/infos.css?v=".YOURLS_VERSION."\" type=\"text/css\" media=\"screen\" />\n";
+		echo "<script src=\"".$home."/js/infos.js?v=".YOURLS_VERSION."\" type=\"text/javascript\"></script>\n";
+		$file = dirname( __FILE__ )."/plugin.php";
+		$data = yourls_get_plugin_data( $file );
+		$v = $data['Version'];
+		echo "\n<link rel=\"stylesheet\" href=\"".$home."/css/tablesorter.css?v=".$v."\" type=\"text/css\" media=\"screen\" />\n";
+		echo "<script src=\"".$home."/js/jquery.tablesorter.min.js?v=".$v."\" type=\"text/javascript\"></script>\n";
 	}
-	$file = dirname( __FILE__ )."/plugin.php";
-	$data = yourls_get_plugin_data( $file );
-	$v = $data['Version'];
-	echo "\n<link rel=\"stylesheet\" href=\"".$home."/css/tablesorter.css?v=".$v."\" type=\"text/css\" media=\"screen\" />\n";
-	echo "<script src=\"".$home."/js/jquery.tablesorter.min.js?v=".$v."\" type=\"text/javascript\"></script>\n";
 }
 // Draw the page, etc
 function puns_do_page() {
