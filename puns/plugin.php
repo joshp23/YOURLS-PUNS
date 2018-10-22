@@ -49,7 +49,7 @@ function puns_do_page() {
 	// Misc for cron example pre-formatting
 	$sig	= yourls_auth_signature();
 	$site   = YOURLS_SITE;
-	$cronEG   =  rawurlencode('<html><body><pre>0 * * * * wget -O - -q -t 1 <strong>'.$site.'</strong>/yourls-api.php?signature=<strong>'.$sig.'</strong>&format=simple&action=puns-fast >/dev/null 2>&1</pre></body></html>');
+	$cronEG   =  rawurlencode('<html><body><pre>0 * * * * curl --silent --data "signature=<strong>'.$sig.'</strong>&format=simple&action=puns-fast"  <strong>'.$site.'</strong>/yourls-api.php 2>&1</pre></body></html>');
 
 	// Create nonce
 	$nonce = yourls_create_nonce( 'puns' );
@@ -160,7 +160,7 @@ echo <<<HTML
 					<h4>Cron example:</h3>
 					<p>Use the following pre-formatted example to set up a daily cron to check for updated plugins:</p>
 					 <iframe src="data:text/html;charset=utf-8,$cronEG" width="100%" height="51"/></iframe>
-					<p>Look here for more info on <a href="https://help.ubuntu.com/community/CronHowto" target="_blank" >cron</a> and <a href="https://www.gnu.org/software/wget/manual/html_node/HTTP-Options.html" target="_blank">wget</a>.</p>
+					<p>Look here for more info on <a href="https://help.ubuntu.com/community/CronHowto" target="_blank" >cron</a> and <a href="https://curl.haxx.se/" target="_blank">curl</a>.</p>
 				</div>
 			</div>
 		</div>
