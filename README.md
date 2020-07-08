@@ -1,5 +1,5 @@
 # YOURLS-PUNS
-Plugin update notificaiton system for YOURLS
+Plugin update notification system for YOURLS
 
 This plugin will check for plugin updates for any plugin that
 -  Is hosted on a supported host
