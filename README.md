@@ -1,5 +1,5 @@
 # YOURLS-PUNS
-**P**lugin **U**pdate **N**otificaiton **S**ystem for YOURLS
+**P**lugin **U**pdate **N**otification **S**ystem for YOURLS
 
 This plugin will check for plugin updates for any plugin that
 
