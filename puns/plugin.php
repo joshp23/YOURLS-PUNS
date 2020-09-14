@@ -3,7 +3,7 @@
 Plugin Name: PUNS - Plugin Update Notification System
 Plugin URI: https://github.com/joshp23/YOURLS-PUNS
 Description: Provides notification updates for YOURLS plugins under certain conditions
-Version: 0.4.6
+Version: 0.5.0
 Author: Josh Panter
 Author URI: https://unfettered.net
 */
@@ -419,7 +419,14 @@ function puns_fast_api() {
 		$opt = puns_config();
 		$parse = parse_url(YOURLS_SITE);
 		if ($opt[3] == 'true') {
-			mail ($opt[4], "YOURLS Update Status", "There are updates for one or more of the YOURS plugins at ".YOURLS_SITE, "noreply@".$parse['host']);
+			$vars['subject'] 	= "YOURLS Update Status";
+			$vars['message'] 	= "There are updates for one or more of the YOURS plugins at ".YOURLS_SITE;
+			$vars['to_address'] = $opt[4];
+			$vars['to_name']	= "YOULS Admin";
+			if( ( yourls_is_active_plugin( 'SMTP-contact/plugin.php' ) ) )
+				ysc_send ( $vars );
+			else 
+				mail ($vars['to_address'], $vars['subject'], $vars['message'], "no-reply@".$parse['host']);
 		}
 		return array(
 			'statusCode' => 200,
@@ -430,11 +437,6 @@ function puns_fast_api() {
 	} else {
 		$opt = puns_config();
 		$parse = parse_url(YOURLS_SITE);
-/*		
-		if ($opt[3] == 'true') {
-			mail ($opt[4], "YOURLS Update Status", "There are no updates for one or more of the YOURS plugins at ".YOURLS_SITE, "noreply@".$parse['host']);
-		}
-*/
 		return array(
 			'statusCode' => 200,
 			'code'		 => 0,
