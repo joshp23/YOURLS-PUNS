@@ -18,3 +18,6 @@ This plugin provides and API action intended for use with a cron job, and can op
 #### Notes:
 - To have this plugin send email using [PHPMailer](https://github.com/PHPMailer/PHPMailer), install [YOURLS-SMTP-contact](https://github.com/joshp23/YOURLS-SMTP-contact)
 - Requires php-curl
+
+### Tips
+Dogecoin: DARhgg9q3HAWYZuN95DKnFonADrSWUimy3
